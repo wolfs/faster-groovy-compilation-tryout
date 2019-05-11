@@ -1,7 +1,4 @@
-import org.codehaus.groovy.ast.ClassCodeVisitorSupport
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.CodeVisitorSupport
-import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.classgen.GeneratorContext
 import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.CompilePhase
@@ -13,41 +10,21 @@ class CompilerTracker extends CompilationCustomizer {
         super(CompilePhase.CLASS_GENERATION)
     }
 
+    Map<URI, List<String>> location2ClassNames = [:].withDefault { [] }
+
     @Override
     void call(SourceUnit source, GeneratorContext context, ClassNode classNode) throws CompilationFailedException {
-        println source.getSource().URI
-        println classNode.name
-
-        context.compileUnit.classes.each {
-            println "Compile Unit: ${it.name}"
-            it.innerClasses.each {
-                println "Inner class: ${it.name}"
-            }
+        inspectClassNode(source, classNode)
+        location2ClassNames.each { location, fqcn ->
+            println "${location} -> ${fqcn.join(",")}"
         }
+    }
+
+    void inspectClassNode(SourceUnit sourceUnit, ClassNode classNode) {
+        location2ClassNames.get(sourceUnit.source.URI).add(classNode.name)
         classNode.innerClasses.each {
-            println "Inner class (classnode): ${it.name}"
+            inspectClassNode(sourceUnit, it)
         }
-        context.getCompileUnit()
-        def codeVisitor = new CodeVisitorSupport() {
-            @Override
-            void visitClosureExpression(ClosureExpression expression) {
-                println expression.getType().name
-                super.visitClosureExpression(expression)
-            }
-        }
-        def visitor = new ClassCodeVisitorSupport() {
-            @Override
-            void visitClosureExpression(ClosureExpression expression) {
-                println expression.getType().name
-                super.visitClosureExpression(expression)
-            }
-
-            @Override
-            protected SourceUnit getSourceUnit() {
-                return null
-            }
-        }
-        classNode.visitContents(visitor)
     }
 }
 

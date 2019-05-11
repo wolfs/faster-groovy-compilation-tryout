@@ -35,8 +35,10 @@ dependencies {
 }
 
 tasks.withType<GroovyCompile> {
-    groovyOptions.configurationScript = file("compiler-plugin/src/main/groovy/config.groovy")
+//    groovyOptions.configurationScript = file("compiler-plugin/src/main/groovy/config.groovy")
 //    astTransformClasspath.from(astTransformationClasspath)
+    options.isIncremental = true
+    groovyOptions.isFork = false
 }
 
 tasks.named<GroovyCompile>("compileTestGroovy") {

@@ -4,4 +4,8 @@ class SomeClass {
     void myMethod(Library library) {
         library.doStuff()
     }
+
+    void anotherMethod() {
+        println "Muuuhhsssssrtrsadrasrtarstrsstarsts"
+    }
 }
